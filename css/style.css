@@ -6,6 +6,66 @@
 }
 
 body {
-  background: #acacac;
+  background: #dfd64f;
+}
+
+main {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+main #board {
+  display: -ms-grid;
+  display: grid;
+  width: 300px;
+  height: 300px;
+  margin: 0 auto;
+  -ms-grid-row-align: center;
+      align-self: center;
+  -ms-grid-columns: (1fr)[3];
+      grid-template-columns: repeat(3, 1fr);
+  -ms-grid-rows: (1fr)[3];
+      grid-template-rows: repeat(3, 1fr);
+}
+
+main #board .tile {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  cursor: pointer;
+}
+
+main #board .tile:nth-child(1), main #board .tile:nth-child(2), main #board .tile:nth-child(4), main #board .tile:nth-child(5) {
+  border-bottom: 5px solid #4b4b4b;
+  border-right: 5px solid #4b4b4b;
+}
+
+main #board .tile:nth-child(3), main #board .tile:nth-child(6) {
+  border-bottom: 5px solid #4b4b4b;
+}
+
+main #board .tile:nth-child(7), main #board .tile:nth-child(8) {
+  border-right: 5px solid #4b4b4b;
+}
+
+main #board .tile p {
+  margin: 0 auto;
+  width: 50%;
+  height: 50%;
+  text-align: center;
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  color: white;
+  font-size: 6rem;
+  line-height: 1.75rem;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+      -ms-user-select: none;
+          user-select: none;
+  pointer-events: none;
 }
 /*# sourceMappingURL=style.css.map */
