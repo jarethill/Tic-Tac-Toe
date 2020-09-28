@@ -156,7 +156,6 @@
 
         return {
             initialize,
-            players,
         };
     })();
 
