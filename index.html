@@ -8,7 +8,22 @@
     </head>
     <body>
         <main>
-            <section id="board"></section>
+            <section id="board" class="invisible"></section>
+            <section id="menu">
+                <form method="get" id="menu-form">
+                    <label for="player-one">
+                        Player 1
+                        <input type="text" name="player-one" id="player-one" />
+                    </label>
+
+                    <label for="player-two">
+                        Player 2
+                        <input type="text" name="player-one" id="player-two" />
+                    </label>
+
+                    <button class="btn" id="play-btn">Play</button>
+                </form>
+            </section>
         </main>
 
         <script src="js/main.js"></script>

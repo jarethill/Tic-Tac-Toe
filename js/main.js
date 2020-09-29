@@ -75,10 +75,23 @@
             } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerTwoMark)) {
                 return endGame(players[1]);
             }
+
+            // Check for tie
+            if (board.flat().every((tile) => tile)) {
+                return endGame('tie');
+            }
         }
 
         function endGame(winner) {
+            if (winner === 'tie') {
+                return console.log('Game is a tie!');
+            }
+
             console.log(`${winner.name} has won the game!`);
+        }
+
+        function swapCurrentPlayer() {
+            currentPlayer = players.find((player) => player.name !== currentPlayer.name);
         }
 
         function move(x, y, playerMark) {
@@ -87,6 +100,7 @@
                 update();
 
                 checkGameOver();
+                swapCurrentPlayer();
             }
         }
 
@@ -103,7 +117,7 @@
 
             const { x, y } = e.target.dataset;
 
-            move(x, y, 'x');
+            move(x, y, currentPlayer.mark);
         }
 
         // Public Methods
@@ -112,11 +126,11 @@
             if (playersArray.length > 2) throw 'Maximum of Two Players allowed';
 
             // Initialize players
-            playersArray.forEach((player, index) => {
-                if (index === 0) player.readyToMove = true;
-
+            playersArray.forEach((player) => {
                 players.push(player);
             });
+
+            currentPlayer = players[0];
 
             // Initialize board
             boardElement.innerHTML = '';
@@ -145,6 +159,7 @@
         // Private Variables
         const boardElement = document.getElementById('board');
         const players = [];
+        let currentPlayer;
         let isInitialized = false;
         let allTileTextElements;
 
@@ -156,6 +171,7 @@
 
         return {
             initialize,
+            boardElement,
         };
     })();
 
@@ -172,7 +188,6 @@
             return {
                 name,
                 mark: mark.toLowerCase(),
-                readyToMove: false,
             };
         }
 
@@ -184,8 +199,46 @@
         };
     })();
 
-    const playerOne = PlayerFactory.construct('Player 1', 'x');
-    const playerTwo = PlayerFactory.construct('Player 2', 'o');
+    const Game = (function () {
+        function start(e) {
+            e.preventDefault();
 
-    GameBoard.initialize([playerOne, playerTwo]);
+            if (gameInProgress) throw 'Game has already started';
+
+            if (!playerOneName) {
+                playerOneName = 'Player 1';
+            }
+
+            if (!playerTwoName) {
+                playerTwoName = 'Player 2';
+            }
+
+            const playerOne = PlayerFactory.construct(playerOneName, 'x');
+            const playerTwo = PlayerFactory.construct(playerTwoName, 'o');
+
+            GameBoard.initialize([playerOne, playerTwo]);
+
+            menu.classList.add('invisible');
+            GameBoard.boardElement.classList.remove('invisible');
+
+            gameInProgress = true;
+        }
+
+        const menu = document.querySelector('#menu');
+        const menuForm = menu.querySelector('#menu-form');
+
+        const playerOneInput = menuForm.querySelector('#player-one');
+        const playerTwoInput = menuForm.querySelector('#player-two');
+
+        playerOneInput.addEventListener('input', (e) => (playerOneName = e.target.value));
+        playerTwoInput.addEventListener('input', (e) => (playerTwoName = e.target.value));
+
+        // Start game on form submit
+        menuForm.addEventListener('submit', (e) => start(e));
+
+        let playerOneName = playerOneInput.value;
+        let playerTwoName = playerTwoInput.value;
+
+        let gameInProgress = false;
+    })();
 })();
