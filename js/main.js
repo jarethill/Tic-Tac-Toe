@@ -255,7 +255,6 @@
             GameBoard.boardElement.classList.remove('invisible');
 
             isInProgress = true;
-            console.log(isInProgress);
         }
 
         function reset() {
