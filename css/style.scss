@@ -29,7 +29,7 @@ body {
     width: 50%;
     display: block;
     margin: 0 auto;
-    height: 3em;
+    height: 4em;
     border-radius: 3px;
     border: 1px solid transparent;
     background: rgb(243, 169, 73);
@@ -64,6 +64,7 @@ main {
     #play-again {
         position: absolute;
         width: 11em;
+        height: 4em;
         top: 75%;
         left: 50%;
         transform: translate(-50%, -50%);
@@ -166,7 +167,7 @@ main {
     }
 }
 
-@media only screen and (max-height: 600px) {
+@media only screen and (max-height: 875px) {
     main {
         h2 {
             top: 0;
