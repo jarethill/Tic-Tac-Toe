@@ -91,6 +91,8 @@
 
             winnerTitleElement.classList.remove('invisible');
             playAgainBtn.classList.remove('invisible');
+
+            Game.setInProgress(false);
         }
 
         function swapCurrentPlayer() {
@@ -98,7 +100,7 @@
         }
 
         function move(x, y, playerMark) {
-            if (isValidMove(x, y)) {
+            if (isValidMove(x, y) && Game.getInProgress()) {
                 board[x][y] = playerMark;
                 update();
 
@@ -234,7 +236,7 @@
         function start(e) {
             e.preventDefault();
 
-            if (gameInProgress) throw 'Game has already started';
+            if (isInProgress) throw 'Game has already started';
 
             if (!playerOneName) {
                 playerOneName = 'Player 1';
@@ -252,13 +254,22 @@
             menu.classList.add('invisible');
             GameBoard.boardElement.classList.remove('invisible');
 
-            gameInProgress = true;
+            isInProgress = true;
+            console.log(isInProgress);
         }
 
         function reset() {
-            gameInProgress = false;
+            isInProgress = false;
             menu.classList.remove('invisible');
             GameBoard.boardElement.classList.add('invisible');
+        }
+
+        function getInProgress() {
+            return isInProgress;
+        }
+
+        function setInProgress(bool) {
+            isInProgress = bool;
         }
 
         const menu = document.querySelector('#menu');
@@ -276,10 +287,12 @@
         let playerOneName = playerOneInput.value;
         let playerTwoName = playerTwoInput.value;
 
-        let gameInProgress = false;
+        let isInProgress = false;
 
         return {
             reset,
+            getInProgress,
+            setInProgress,
         };
     })();
 })();
