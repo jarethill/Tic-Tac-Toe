@@ -84,10 +84,13 @@
 
         function endGame(winner) {
             if (winner === 'tie') {
-                return console.log('Game is a tie!');
+                winnerTitleElement.textContent = `Game is a tie!`;
+            } else {
+                winnerTitleElement.textContent = `${winner.name} has won the game!`;
             }
 
-            console.log(`${winner.name} has won the game!`);
+            winnerTitleElement.classList.remove('invisible');
+            playAgainBtn.classList.remove('invisible');
         }
 
         function swapCurrentPlayer() {
@@ -118,6 +121,15 @@
             const { x, y } = e.target.dataset;
 
             move(x, y, currentPlayer.mark);
+        }
+
+        function reset() {
+            isInitialized = false;
+            players = [];
+            board = defaultBoard.map((arr) => arr.slice());
+
+            playAgainBtn.classList.add('invisible');
+            winnerTitleElement.classList.add('invisible');
         }
 
         // Public Methods
@@ -151,27 +163,41 @@
             }
 
             allTileTextElements = boardElement.querySelectorAll('.tile > p');
+            winnerTitleElement = document.getElementById('winner-title');
+            playAgainBtn = document.getElementById('play-again');
+
             isInitialized = true;
 
             boardElement.addEventListener('mousedown', (e) => handleMousedown(e));
+            playAgainBtn.addEventListener('mousedown', () => {
+                Game.reset();
+                PlayerFactory.reset();
+                this.reset();
+            });
         }
 
         // Private Variables
         const boardElement = document.getElementById('board');
-        const players = [];
-        let currentPlayer;
+        let players = [];
         let isInitialized = false;
-        let allTileTextElements;
 
-        const board = [
+        let currentPlayer;
+        let allTileTextElements;
+        let winnerTitleElement;
+        let playAgainBtn;
+
+        const defaultBoard = [
             ['', '', ''],
             ['', '', ''],
             ['', '', ''],
         ];
 
+        let board = defaultBoard.map((arr) => arr.slice());
+
         return {
             initialize,
             boardElement,
+            reset,
         };
     })();
 
@@ -191,11 +217,16 @@
             };
         }
 
+        function reset() {
+            numberOfPlayers = 0;
+        }
+
         let numberOfPlayers = 0;
         const MAX_ALLOWED_PLAYERS = 2;
 
         return {
             construct,
+            reset,
         };
     })();
 
@@ -224,6 +255,12 @@
             gameInProgress = true;
         }
 
+        function reset() {
+            gameInProgress = false;
+            menu.classList.remove('invisible');
+            GameBoard.boardElement.classList.add('invisible');
+        }
+
         const menu = document.querySelector('#menu');
         const menuForm = menu.querySelector('#menu-form');
 
@@ -240,5 +277,9 @@
         let playerTwoName = playerTwoInput.value;
 
         let gameInProgress = false;
+
+        return {
+            reset,
+        };
     })();
 })();

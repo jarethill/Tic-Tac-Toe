@@ -10,10 +10,28 @@ body {
 }
 
 .invisible {
+  position: absolute !important;
+  display: none !important;
   opacity: 0 !important;
-  width: 0px !important;
-  height: 0px !important;
-  position: absolute;
+  visibility: hidden !important;
+}
+
+@-webkit-keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 .btn {
@@ -24,8 +42,13 @@ body {
   border-radius: 3px;
   border: 1px solid transparent;
   background: #f3a949;
+  color: #181818;
   font-weight: bold;
   cursor: pointer;
+}
+
+.btn:hover {
+  opacity: 0.9;
 }
 
 main {
@@ -36,9 +59,43 @@ main {
   width: 100%;
 }
 
+main h2 {
+  margin: 0 auto;
+  width: 100%;
+  display: block;
+  position: absolute;
+  text-align: center;
+  top: 17%;
+  font-size: 3rem;
+  visibility: visible;
+  opacity: 1;
+  -webkit-animation: fade 1s;
+          animation: fade 1s;
+  color: #181818;
+}
+
+main #play-again {
+  position: absolute;
+  width: 11em;
+  top: 75%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background: #181818;
+  color: white;
+  visibility: visible;
+  opacity: 1;
+  -webkit-animation: fade 1s;
+          animation: fade 1s;
+}
+
+main #play-again:hover {
+  opacity: 0.8;
+}
+
 main #menu {
   width: 300px;
-  height: 500px;
+  height: 400px;
   margin: 0 auto;
   background: white;
   -ms-flex-item-align: center;
@@ -47,6 +104,10 @@ main #menu {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  visibility: visible;
+  opacity: 1;
+  -webkit-animation: fade 1s;
+          animation: fade 1s;
 }
 
 main #menu form {
@@ -67,6 +128,8 @@ main #menu form label {
           flex-direction: column;
   margin-bottom: 1em;
   font-weight: bold;
+  text-transform: uppercase;
+  color: #181818;
 }
 
 main #menu form label input {
@@ -91,6 +154,10 @@ main #board {
       grid-template-columns: repeat(3, 1fr);
   -ms-grid-rows: (1fr)[3];
       grid-template-rows: repeat(3, 1fr);
+  visibility: visible;
+  opacity: 1;
+  -webkit-animation: fade 1s;
+          animation: fade 1s;
 }
 
 main #board .tile {
