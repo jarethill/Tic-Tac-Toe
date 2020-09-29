@@ -98,6 +98,7 @@ main #menu {
   width: 300px;
   height: 400px;
   margin: 0 auto;
+  position: relative;
   background: white;
   -ms-flex-item-align: center;
       align-self: center;
@@ -141,6 +142,12 @@ main #menu form label input {
   min-height: 50px;
   padding: 10px;
   outline: none;
+}
+
+main #menu #play-ai {
+  position: absolute;
+  bottom: 1em;
+  right: 1em;
 }
 
 main #board {

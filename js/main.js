@@ -1,15 +1,15 @@
 (() => {
     const GameBoard = (function () {
         // Private Methods
-        function isValidMove(x, y) {
+        function isValidMove(x, y, board) {
             if (x > 2 || y > 2 || x < 0 || y < 0) throw 'Invalid move, index out of bounds';
 
             return !board[x][y] ? true : false;
         }
 
-        function checkGameOver() {
-            const playerOneMark = players[0].mark;
-            const playerTwoMark = players[1].mark;
+        function checkGameOver(board, playerOneMark = 'x', playerTwoMark = 'o') {
+            // const playerOneMark = players[0].mark;
+            // const playerTwoMark = players[1].mark;
 
             // Check rows
             for (let x = 0; x < board.length; x++) {
@@ -20,9 +20,9 @@
                 }
 
                 if (rowResults.length > 0 && rowResults.every((result) => result === playerOneMark)) {
-                    return endGame(players[0]);
+                    return 1;
                 } else if (rowResults.length > 0 && rowResults.every((result) => result === playerTwoMark)) {
-                    return endGame(players[1]);
+                    return -1;
                 }
             }
 
@@ -38,9 +38,9 @@
                 const result = columnResults[i];
 
                 if (result.length > 0 && result.every((r) => r === playerOneMark)) {
-                    return endGame(players[0]);
+                    return 1;
                 } else if (result.length > 0 && result.every((r) => r === playerTwoMark)) {
-                    return endGame(players[1]);
+                    return -1;
                 }
             }
 
@@ -55,9 +55,9 @@
             }
 
             if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerOneMark)) {
-                return endGame(players[0]);
+                return 1;
             } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerTwoMark)) {
-                return endGame(players[1]);
+                return -1;
             }
 
             // Reset results array to empty to check for last diagonal
@@ -71,23 +71,19 @@
             }
 
             if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerOneMark)) {
-                return endGame(players[0]);
+                return 1;
             } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerTwoMark)) {
-                return endGame(players[1]);
+                return -1;
             }
 
             // Check for tie
             if (board.flat().every((tile) => tile)) {
-                return endGame('tie');
+                return 0;
             }
         }
 
         function endGame(winner) {
-            if (winner === 'tie') {
-                winnerTitleElement.textContent = `Game is a tie!`;
-            } else {
-                winnerTitleElement.textContent = `${winner.name} has won the game!`;
-            }
+            winnerTitleElement.textContent = !winner ? 'Game is a tie!' : `${winner.name} has won the game!`;
 
             winnerTitleElement.classList.remove('invisible');
             playAgainBtn.classList.remove('invisible');
@@ -100,12 +96,108 @@
         }
 
         function move(x, y, playerMark) {
-            if (isValidMove(x, y) && Game.getInProgress()) {
+            if (isValidMove(x, y, board) && Game.getInProgress()) {
                 board[x][y] = playerMark;
                 update();
 
-                checkGameOver();
-                swapCurrentPlayer();
+                const roundResult = checkGameOver(board);
+
+                switch (roundResult) {
+                    case 1:
+                        endGame(players[0]);
+                        break;
+                    case -1:
+                        endGame(players[1]);
+                        break;
+                    case 0:
+                        endGame();
+                        break;
+                    default:
+                        swapCurrentPlayer();
+
+                        if (currentPlayer.isAi) {
+                            aiMove();
+                        }
+                        break;
+                }
+            }
+        }
+
+        function aiMove() {
+            let maxEval = -Infinity;
+            let bestMove;
+
+            let debug = [];
+
+            for (let x = 0; x < board.length; x++) {
+                for (let y = 0; y < board[x].length; y++) {
+                    if (isValidMove(x, y, board)) {
+                        if (!bestMove) bestMove = { x, y };
+
+                        const simulatedBoard = deepClone2DArray(board);
+                        simulatedBoard[x][y] = currentPlayer.mark;
+
+                        const eval = minimax(simulatedBoard, 100, true);
+
+                        if (eval > maxEval) {
+                            maxEval = eval;
+                            bestMove = { x, y };
+                        }
+
+                        debug.push({ simulatedBoard, eval });
+                    }
+                }
+            }
+
+            move(bestMove.x, bestMove.y, currentPlayer.mark);
+            console.log(debug);
+        }
+
+        function minimax(board, depth, maximizingPlayer) {
+            const roundResult = checkGameOver(board);
+
+            if (depth === 0) {
+                return roundResult;
+            }
+
+            if (roundResult >= -1 && roundResult <= 1) {
+                return roundResult;
+            }
+
+            if (maximizingPlayer) {
+                let maxEval = -Infinity;
+
+                for (let x = 0; x < board.length; x++) {
+                    for (let y = 0; y < board[x].length; y++) {
+                        if (isValidMove(x, y, board)) {
+                            const simulatedBoard = deepClone2DArray(board);
+                            simulatedBoard[x][y] = 'o';
+
+                            const eval = minimax(simulatedBoard, depth - 1, false);
+
+                            maxEval = Math.max(maxEval, eval);
+                        }
+                    }
+                }
+
+                return maxEval;
+            } else {
+                let minEval = Infinity;
+
+                for (let x = 0; x < board.length; x++) {
+                    for (let y = 0; y < board[x].length; y++) {
+                        if (isValidMove(x, y, board)) {
+                            const simulatedBoard = deepClone2DArray(board);
+                            simulatedBoard[x][y] = 'x';
+
+                            const eval = minimax(simulatedBoard, depth - 1, true);
+
+                            minEval = Math.min(minEval, eval);
+                        }
+                    }
+                }
+
+                return minEval;
             }
         }
 
@@ -128,10 +220,14 @@
         function reset() {
             isInitialized = false;
             players = [];
-            board = defaultBoard.map((arr) => arr.slice());
+            board = deepClone2DArray(defaultBoard);
 
             playAgainBtn.classList.add('invisible');
             winnerTitleElement.classList.add('invisible');
+        }
+
+        function deepClone2DArray(array) {
+            return array.map((arr) => arr.slice());
         }
 
         // Public Methods
@@ -171,6 +267,7 @@
             isInitialized = true;
 
             boardElement.addEventListener('mousedown', (e) => handleMousedown(e));
+
             playAgainBtn.addEventListener('mousedown', () => {
                 Game.reset();
                 PlayerFactory.reset();
@@ -187,6 +284,7 @@
         let allTileTextElements;
         let winnerTitleElement;
         let playAgainBtn;
+        const aiCheckbox = document.getElementById('ai-checkbox');
 
         const defaultBoard = [
             ['', '', ''],
@@ -194,7 +292,8 @@
             ['', '', ''],
         ];
 
-        let board = defaultBoard.map((arr) => arr.slice());
+        let board = deepClone2DArray(defaultBoard);
+        aiCheckbox.addEventListener('change', (e) => Game.setAiGame(e));
 
         return {
             initialize,
@@ -204,7 +303,7 @@
     })();
 
     const PlayerFactory = (function () {
-        function construct(name, mark) {
+        function construct(name, mark, isAi = false) {
             if (mark.toLowerCase() !== 'x' && mark.toLowerCase() !== 'o') {
                 throw 'Mark must be an X or an O';
             }
@@ -216,6 +315,7 @@
             return {
                 name,
                 mark: mark.toLowerCase(),
+                isAi,
             };
         }
 
@@ -247,7 +347,14 @@
             }
 
             const playerOne = PlayerFactory.construct(playerOneName, 'x');
-            const playerTwo = PlayerFactory.construct(playerTwoName, 'o');
+
+            let playerTwo;
+
+            if (isAiGame) {
+                playerTwo = PlayerFactory.construct('AI', 'o', true);
+            } else {
+                playerTwo = PlayerFactory.construct(playerTwoName, 'o');
+            }
 
             GameBoard.initialize([playerOne, playerTwo]);
 
@@ -261,6 +368,10 @@
             isInProgress = false;
             menu.classList.remove('invisible');
             GameBoard.boardElement.classList.add('invisible');
+
+            if (isAiGame) {
+                playerTwoInput.parentElement.style.display = 'none';
+            }
         }
 
         function getInProgress() {
@@ -269,6 +380,18 @@
 
         function setInProgress(bool) {
             isInProgress = bool;
+        }
+
+        function setAiGame(e) {
+            const { checked } = e.target;
+
+            if (checked) {
+                playerTwoInput.parentElement.style.display = 'none';
+                isAiGame = true;
+            } else {
+                playerTwoInput.parentElement.style.display = '';
+                isAiGame = false;
+            }
         }
 
         const menu = document.querySelector('#menu');
@@ -287,11 +410,13 @@
         let playerTwoName = playerTwoInput.value;
 
         let isInProgress = false;
+        let isAiGame = false;
 
         return {
             reset,
             getInProgress,
             setInProgress,
+            setAiGame,
         };
     })();
 })();

@@ -83,6 +83,7 @@ main {
         width: 300px;
         height: 400px;
         margin: 0 auto;
+        position: relative;
         background: white;
         align-self: center;
         border-radius: 5px;
@@ -114,6 +115,12 @@ main {
                     outline: none;
                 }
             }
+        }
+
+        #play-ai {
+            position: absolute;
+            bottom: 1em;
+            right: 1em;
         }
     }
 
