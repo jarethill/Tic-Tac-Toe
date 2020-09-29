@@ -197,4 +197,13 @@ main #board .tile p {
           user-select: none;
   pointer-events: none;
 }
+
+@media only screen and (max-height: 600px) {
+  main h2 {
+    top: 0;
+  }
+  main #play-again {
+    top: 87%;
+  }
+}
 /*# sourceMappingURL=style.css.map */
