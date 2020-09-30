@@ -242,11 +242,7 @@
         function minimax(board, depth, maximizingPlayer) {
             const roundResult = checkGameOver(board);
 
-            if (depth === 0) {
-                return roundResult;
-            }
-
-            if (roundResult) {
+            if (depth === 0 || roundResult) {
                 const roundResultMapping = {
                     x: -1,
                     '/': 0,
