@@ -1,7 +1,3 @@
 # Tic Tac Toe
 
-A simple game of Tic Tac Toe
-
-## TODO:
-
--   Add option to play AI as 2nd Player
+A simple game of Tic Tac Toe. Play vs another player or an unbeatable AI (minimax algorithm)
