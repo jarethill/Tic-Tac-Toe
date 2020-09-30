@@ -59,41 +59,6 @@ main {
   width: 100%;
 }
 
-main h2 {
-  margin: 0 auto;
-  width: 100%;
-  display: block;
-  position: absolute;
-  text-align: center;
-  top: 17%;
-  font-size: 3rem;
-  visibility: visible;
-  opacity: 1;
-  -webkit-animation: fade 1s;
-          animation: fade 1s;
-  color: #181818;
-}
-
-main #play-again {
-  position: absolute;
-  width: 11em;
-  height: 4em;
-  top: 75%;
-  left: 50%;
-  -webkit-transform: translate(-50%, -50%);
-          transform: translate(-50%, -50%);
-  background: #181818;
-  color: white;
-  visibility: visible;
-  opacity: 1;
-  -webkit-animation: fade 1s;
-          animation: fade 1s;
-}
-
-main #play-again:hover {
-  opacity: 0.8;
-}
-
 main #menu {
   width: 300px;
   height: 400px;
@@ -150,7 +115,57 @@ main #menu #play-ai {
   right: 1em;
 }
 
-main #board {
+main #board-wrapper {
+  margin: 0 auto;
+  -ms-flex-item-align: center;
+      align-self: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-orient: vertical;
+  -webkit-box-direction: normal;
+      -ms-flex-direction: column;
+          flex-direction: column;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  width: 100vw;
+  height: 100vh;
+}
+
+main #board-wrapper h2 {
+  margin: 0 auto;
+  width: 100%;
+  position: relative;
+  bottom: 1em;
+  display: block;
+  text-align: center;
+  font-size: 3rem;
+  visibility: visible;
+  opacity: 1;
+  -webkit-animation: fade 1s;
+          animation: fade 1s;
+  color: #181818;
+}
+
+main #board-wrapper #play-again {
+  position: relative;
+  width: 11em;
+  height: 4em;
+  top: 3.5em;
+  background: #181818;
+  color: white;
+  visibility: visible;
+  opacity: 1;
+  -webkit-animation: fade 1s;
+          animation: fade 1s;
+}
+
+main #board-wrapper #play-again:hover {
+  opacity: 0.8;
+}
+
+main #board-wrapper #board {
   display: -ms-grid;
   display: grid;
   width: 300px;
@@ -168,27 +183,27 @@ main #board {
           animation: fade 1s;
 }
 
-main #board .tile {
+main #board-wrapper #board .tile {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
   cursor: pointer;
 }
 
-main #board .tile:nth-child(1), main #board .tile:nth-child(2), main #board .tile:nth-child(4), main #board .tile:nth-child(5) {
+main #board-wrapper #board .tile:nth-child(1), main #board-wrapper #board .tile:nth-child(2), main #board-wrapper #board .tile:nth-child(4), main #board-wrapper #board .tile:nth-child(5) {
   border-bottom: 5px solid #4b4b4b;
   border-right: 5px solid #4b4b4b;
 }
 
-main #board .tile:nth-child(3), main #board .tile:nth-child(6) {
+main #board-wrapper #board .tile:nth-child(3), main #board-wrapper #board .tile:nth-child(6) {
   border-bottom: 5px solid #4b4b4b;
 }
 
-main #board .tile:nth-child(7), main #board .tile:nth-child(8) {
+main #board-wrapper #board .tile:nth-child(7), main #board-wrapper #board .tile:nth-child(8) {
   border-right: 5px solid #4b4b4b;
 }
 
-main #board .tile p {
+main #board-wrapper #board .tile p {
   margin: 0 auto;
   width: 50%;
   height: 50%;
@@ -204,14 +219,5 @@ main #board .tile p {
       -ms-user-select: none;
           user-select: none;
   pointer-events: none;
-}
-
-@media only screen and (max-height: 875px) {
-  main h2 {
-    top: 0;
-  }
-  main #play-again {
-    top: 87%;
-  }
 }
 /*# sourceMappingURL=style.css.map */

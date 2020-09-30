@@ -27,6 +27,7 @@
 
             menu.classList.add('invisible');
             GameBoard.boardElement.classList.remove('invisible');
+            GameBoard.boardElement.parentElement.classList.remove('invisible');
 
             isInProgress = true;
         }
@@ -35,6 +36,7 @@
             isInProgress = false;
             menu.classList.remove('invisible');
             GameBoard.boardElement.classList.add('invisible');
+            GameBoard.boardElement.parentElement.classList.add('invisible');
 
             if (isAiGame) {
                 playerTwoInput.parentElement.style.display = 'none';
