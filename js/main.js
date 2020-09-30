@@ -1,16 +1,98 @@
 (() => {
+    const Game = (function () {
+        function start(e) {
+            e.preventDefault();
+
+            if (isInProgress) throw 'Game has already started';
+
+            if (!playerOneName) {
+                playerOneName = 'Player 1';
+            }
+
+            if (!playerTwoName) {
+                playerTwoName = 'Player 2';
+            }
+
+            const playerOne = PlayerFactory.construct(playerOneName, 'x');
+
+            let playerTwo;
+
+            if (isAiGame) {
+                playerTwo = PlayerFactory.construct('AI', 'o', true);
+            } else {
+                playerTwo = PlayerFactory.construct(playerTwoName, 'o');
+            }
+
+            GameBoard.initialize([playerOne, playerTwo]);
+
+            menu.classList.add('invisible');
+            GameBoard.boardElement.classList.remove('invisible');
+
+            isInProgress = true;
+        }
+
+        function reset() {
+            isInProgress = false;
+            menu.classList.remove('invisible');
+            GameBoard.boardElement.classList.add('invisible');
+
+            if (isAiGame) {
+                playerTwoInput.parentElement.style.display = 'none';
+            }
+        }
+
+        function getInProgress() {
+            return isInProgress;
+        }
+
+        function setInProgress(bool) {
+            isInProgress = bool;
+        }
+
+        function setAiGame(checked) {
+            if (checked) {
+                playerTwoInput.parentElement.style.display = 'none';
+                isAiGame = true;
+            } else {
+                playerTwoInput.parentElement.style.display = '';
+                isAiGame = false;
+            }
+        }
+
+        const menu = document.querySelector('#menu');
+        const menuForm = menu.querySelector('#menu-form');
+
+        const playerOneInput = menuForm.querySelector('#player-one');
+        const playerTwoInput = menuForm.querySelector('#player-two');
+
+        playerOneInput.addEventListener('input', (e) => (playerOneName = e.target.value));
+        playerTwoInput.addEventListener('input', (e) => (playerTwoName = e.target.value));
+
+        // Start game on form submit
+        menuForm.addEventListener('submit', (e) => start(e));
+
+        let playerOneName = playerOneInput.value;
+        let playerTwoName = playerTwoInput.value;
+
+        let isInProgress = false;
+        let isAiGame = false;
+
+        return {
+            reset,
+            getInProgress,
+            setInProgress,
+            setAiGame,
+        };
+    })();
+
     const GameBoard = (function () {
-        // Private Methods
         function isValidMove(x, y, board) {
             if (x > 2 || y > 2 || x < 0 || y < 0) throw 'Invalid move, index out of bounds';
 
             return !board[x][y] ? true : false;
         }
 
-        function checkGameOver(board, playerOneMark = 'x', playerTwoMark = 'o') {
-            // const playerOneMark = players[0].mark;
-            // const playerTwoMark = players[1].mark;
-
+        function checkGameOver(board) {
             // Check rows
             for (let x = 0; x < board.length; x++) {
                 const rowResults = [];
@@ -19,10 +101,10 @@
                     rowResults.push(board[x][y]);
                 }
 
-                if (rowResults.length > 0 && rowResults.every((result) => result === playerOneMark)) {
-                    return 1;
-                } else if (rowResults.length > 0 && rowResults.every((result) => result === playerTwoMark)) {
-                    return -1;
+                if (rowResults.length > 0 && rowResults.every((result) => result === 'x')) {
+                    return 'x';
+                } else if (rowResults.length > 0 && rowResults.every((result) => result === 'o')) {
+                    return 'o';
                 }
             }
 
@@ -37,10 +119,10 @@
             for (let i = 0; i < columnResults.length; i++) {
                 const result = columnResults[i];
 
-                if (result.length > 0 && result.every((r) => r === playerOneMark)) {
-                    return 1;
-                } else if (result.length > 0 && result.every((r) => r === playerTwoMark)) {
-                    return -1;
+                if (result.length > 0 && result.every((r) => r === 'x')) {
+                    return 'x';
+                } else if (result.length > 0 && result.every((r) => r === 'o')) {
+                    return 'o';
                 }
             }
 
@@ -54,10 +136,10 @@
                 diagonalResults.push(board[x][y]);
             }
 
-            if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerOneMark)) {
-                return 1;
-            } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerTwoMark)) {
-                return -1;
+            if (diagonalResults.length > 0 && diagonalResults.every((result) => result === 'x')) {
+                return 'x';
+            } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === 'o')) {
+                return 'o';
             }
 
             // Reset results array to empty to check for last diagonal
@@ -70,16 +152,19 @@
                 j++;
             }
 
-            if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerOneMark)) {
-                return 1;
-            } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === playerTwoMark)) {
-                return -1;
+            if (diagonalResults.length > 0 && diagonalResults.every((result) => result === 'x')) {
+                return 'x';
+            } else if (diagonalResults.length > 0 && diagonalResults.every((result) => result === 'o')) {
+                return 'o';
             }
 
             // Check for tie
             if (board.flat().every((tile) => tile)) {
-                return 0;
+                return '/';
             }
+
+            // Return null if no winner
+            return null;
         }
 
         function endGame(winner) {
@@ -95,6 +180,10 @@
             currentPlayer = players.find((player) => player.name !== currentPlayer.name);
         }
 
+        function findPlayerWithMark(mark) {
+            return players.find((player) => player.mark === mark);
+        }
+
         function move(x, y, playerMark) {
             if (isValidMove(x, y, board) && Game.getInProgress()) {
                 board[x][y] = playerMark;
@@ -103,13 +192,13 @@
                 const roundResult = checkGameOver(board);
 
                 switch (roundResult) {
-                    case 1:
-                        endGame(players[0]);
+                    case 'x':
+                        endGame(findPlayerWithMark('x'));
                         break;
-                    case -1:
-                        endGame(players[1]);
+                    case 'o':
+                        endGame(findPlayerWithMark('o'));
                         break;
-                    case 0:
+                    case '/':
                         endGame();
                         break;
                     default:
@@ -127,8 +216,6 @@
             let maxEval = -Infinity;
             let bestMove;
 
-            let debug = [];
-
             for (let x = 0; x < board.length; x++) {
                 for (let y = 0; y < board[x].length; y++) {
                     if (isValidMove(x, y, board)) {
@@ -137,20 +224,17 @@
                         const simulatedBoard = deepClone2DArray(board);
                         simulatedBoard[x][y] = currentPlayer.mark;
 
-                        const eval = minimax(simulatedBoard, 100, true);
+                        const eval = minimax(simulatedBoard, 1000, false);
 
                         if (eval > maxEval) {
                             maxEval = eval;
                             bestMove = { x, y };
                         }
-
-                        debug.push({ simulatedBoard, eval });
                     }
                 }
             }
 
             move(bestMove.x, bestMove.y, currentPlayer.mark);
-            console.log(debug);
         }
 
         function minimax(board, depth, maximizingPlayer) {
@@ -160,8 +244,14 @@
                 return roundResult;
             }
 
-            if (roundResult >= -1 && roundResult <= 1) {
-                return roundResult;
+            if (roundResult) {
+                const roundResultMapping = {
+                    x: -1,
+                    '/': 0,
+                    o: 1,
+                };
+
+                return roundResultMapping[roundResult];
             }
 
             if (maximizingPlayer) {
@@ -230,7 +320,6 @@
             return array.map((arr) => arr.slice());
         }
 
-        // Public Methods
         function initialize(playersArray) {
             if (isInitialized === true) throw 'GameBoard is already initialized';
             if (playersArray.length > 2) throw 'Maximum of Two Players allowed';
@@ -275,7 +364,6 @@
             });
         }
 
-        // Private Variables
         const boardElement = document.getElementById('board');
         let players = [];
         let isInitialized = false;
@@ -286,6 +374,8 @@
         let playAgainBtn;
         const aiCheckbox = document.getElementById('ai-checkbox');
 
+        Game.setAiGame(aiCheckbox.checked);
+
         const defaultBoard = [
             ['', '', ''],
             ['', '', ''],
@@ -293,7 +383,7 @@
         ];
 
         let board = deepClone2DArray(defaultBoard);
-        aiCheckbox.addEventListener('change', (e) => Game.setAiGame(e));
+        aiCheckbox.addEventListener('change', (e) => Game.setAiGame(e.target.checked));
 
         return {
             initialize,
@@ -329,94 +419,6 @@
         return {
             construct,
             reset,
-        };
-    })();
-
-    const Game = (function () {
-        function start(e) {
-            e.preventDefault();
-
-            if (isInProgress) throw 'Game has already started';
-
-            if (!playerOneName) {
-                playerOneName = 'Player 1';
-            }
-
-            if (!playerTwoName) {
-                playerTwoName = 'Player 2';
-            }
-
-            const playerOne = PlayerFactory.construct(playerOneName, 'x');
-
-            let playerTwo;
-
-            if (isAiGame) {
-                playerTwo = PlayerFactory.construct('AI', 'o', true);
-            } else {
-                playerTwo = PlayerFactory.construct(playerTwoName, 'o');
-            }
-
-            GameBoard.initialize([playerOne, playerTwo]);
-
-            menu.classList.add('invisible');
-            GameBoard.boardElement.classList.remove('invisible');
-
-            isInProgress = true;
-        }
-
-        function reset() {
-            isInProgress = false;
-            menu.classList.remove('invisible');
-            GameBoard.boardElement.classList.add('invisible');
-
-            if (isAiGame) {
-                playerTwoInput.parentElement.style.display = 'none';
-            }
-        }
-
-        function getInProgress() {
-            return isInProgress;
-        }
-
-        function setInProgress(bool) {
-            isInProgress = bool;
-        }
-
-        function setAiGame(e) {
-            const { checked } = e.target;
-
-            if (checked) {
-                playerTwoInput.parentElement.style.display = 'none';
-                isAiGame = true;
-            } else {
-                playerTwoInput.parentElement.style.display = '';
-                isAiGame = false;
-            }
-        }
-
-        const menu = document.querySelector('#menu');
-        const menuForm = menu.querySelector('#menu-form');
-
-        const playerOneInput = menuForm.querySelector('#player-one');
-        const playerTwoInput = menuForm.querySelector('#player-two');
-
-        playerOneInput.addEventListener('input', (e) => (playerOneName = e.target.value));
-        playerTwoInput.addEventListener('input', (e) => (playerTwoName = e.target.value));
-
-        // Start game on form submit
-        menuForm.addEventListener('submit', (e) => start(e));
-
-        let playerOneName = playerOneInput.value;
-        let playerTwoName = playerTwoInput.value;
-
-        let isInProgress = false;
-        let isAiGame = false;
-
-        return {
-            reset,
-            getInProgress,
-            setInProgress,
-            setAiGame,
         };
     })();
 })();
